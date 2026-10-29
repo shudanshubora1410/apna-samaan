@@ -1,0 +1,39 @@
+# Environment secrets (NEVER commit real secrets)
+.env
+.env.*
+!.env.example
+
+# Maven & Java build outputs
+target/
+backend/target/
+*.jar
+*.war
+*.nar
+*.ear
+*.class
+hs_err_pid*
+replay_pid*
+
+# Runtime uploads (driver documents stored outside web root)
+uploads/
+backend/uploads/
+
+# Logs
+*.log
+logs/
+backend/logs/
+
+# IDEs and editors
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# OS metadata
+.DS_Store
+Thumbs.db

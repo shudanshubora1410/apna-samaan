@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipper Dashboard — Apna Samaan</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Sidebar Rail (Clean Navigation + Account Sign Out) -->
+    <aside id="customer-rail" class="app-rail"></aside>
+
+    <!-- Main Full-Viewport Workspace -->
+    <main class="app-workspace">
+      <!-- Clean Single-Title Top Bar -->
+      <header class="app-topbar">
+        <h1 id="cust-view-title" class="h6 fw-bold mb-0">Book a Shipment</h1>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" id="btn-mobile-logout" class="btn btn-sm btn-as-ghost d-lg-none py-1">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: BOOK SHIPMENT DRAWER + FULL-BLEED MAP -->
+      <section id="tab-book" class="map-workbench">
+        <div class="workbench-drawer">
+          <div id="google-phone-banner" class="oauth-phone-callout mb-3 d-none" role="status">
+            <div>
+              <div class="fw-bold">Add your 10-digit mobile number</div>
+              <div style="font-size: 0.74rem;">Recommended for Google accounts so assigned drivers can coordinate pickup smoothly.</div>
+            </div>
+            <button type="button" id="btn-go-add-phone" class="btn btn-sm btn-as-navy text-nowrap py-1 px-2">
+              Add Mobile →
+            </button>
+          </div>
+
+          <div class="d-flex flex-wrap gap-1 mb-3" id="cust-presets"></div>
+
+          <form id="booking-form" novalidate>
+            <div data-form-error class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+            <!-- Route Rail -->
+            <div class="route-rail mb-3">
+              <div class="route-stop pickup mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="as-label mb-0" style="color: var(--as-highway);">Pickup Location</span>
+                  <span id="lbl-pickup-coords" class="small text-secondary">Delhi</span>
+                </div>
+                <div class="mb-2 geocode-wrap">
+                  <div class="input-stop-field">
+                    <span class="input-stop-marker pickup" aria-hidden="true"></span>
+                    <input id="b-pickup-address" name="pickupAddress" type="text" class="form-control form-control-sm"
+                           placeholder="Search pickup street, shop, or warehouse" required>
+                  </div>
+                </div>
+                <input id="b-pickup-city" name="pickupCity" type="hidden" value="Delhi">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <input id="b-pickup-name" name="pickupContactName" type="text" class="form-control form-control-sm"
+                           placeholder="Sender Name" required>
+                  </div>
+                  <div class="col-6">
+                    <input id="b-pickup-phone" name="pickupContactPhone" type="tel" maxlength="10"
+                           class="form-control form-control-sm font-mono" placeholder="10-digit Mobile" required>
+                  </div>
+                </div>
+                <input id="b-pickup-lat" type="hidden" value="28.6315">
+                <input id="b-pickup-lng" type="hidden" value="77.2167">
+              </div>
+
+              <div class="route-stop drop">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="as-label mb-0" style="color: var(--as-vermilion);">Drop-off Location</span>
+                  <span id="lbl-drop-coords" class="small text-secondary">Gurugram</span>
+                </div>
+                <div class="mb-2 geocode-wrap">
+                  <div class="input-stop-field">
+                    <span class="input-stop-marker drop" aria-hidden="true"></span>
+                    <input id="b-drop-address" name="dropAddress" type="text" class="form-control form-control-sm"
+                           placeholder="Search customer or warehouse destination" required>
+                  </div>
+                </div>
+                <input id="b-drop-city" name="dropCity" type="hidden" value="Gurugram">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <input id="b-drop-name" name="dropContactName" type="text" class="form-control form-control-sm"
+                           placeholder="Receiver Name" required>
+                  </div>
+                  <div class="col-6">
+                    <input id="b-drop-phone" name="dropContactPhone" type="tel" maxlength="10"
+                           class="form-control form-control-sm font-mono" placeholder="10-digit Mobile" required>
+                  </div>
+                </div>
+                <input id="b-drop-lat" type="hidden" value="28.4950">
+                <input id="b-drop-lng" type="hidden" value="77.0895">
+              </div>
+            </div>
+
+            <!-- Cargo Specs -->
+            <div class="pt-3 border-top mb-3" style="border-color: var(--as-line) !important;">
+              <span class="as-label">Cargo Weight &amp; Dimensions</span>
+              <div class="row g-2 mb-2">
+                <div class="col-3">
+                  <label for="b-weight" class="small text-secondary" style="font-size:0.72rem;">Weight kg</label>
+                  <input id="b-weight" name="weightKg" type="number" step="0.5" min="0.5" max="3500"
+                         class="form-control form-control-sm tabular-nums" value="40" required>
+                </div>
+                <div class="col-3">
+                  <label for="b-length" class="small text-secondary" style="font-size:0.72rem;">Len cm</label>
+                  <input id="b-length" name="lengthCm" type="number" step="1" min="1" max="420"
+                         class="form-control form-control-sm tabular-nums" value="70" required>
+                </div>
+                <div class="col-3">
+                  <label for="b-width" class="small text-secondary" style="font-size:0.72rem;">Wid cm</label>
+                  <input id="b-width" name="widthCm" type="number" step="1" min="1" max="420"
+                         class="form-control form-control-sm tabular-nums" value="55" required>
+                </div>
+                <div class="col-3">
+                  <label for="b-height" class="small text-secondary" style="font-size:0.72rem;">Hgt cm</label>
+                  <input id="b-height" name="heightCm" type="number" step="1" min="1" max="420"
+                         class="form-control form-control-sm tabular-nums" value="50" required>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-5">
+                  <select id="b-category" name="packageCategory" class="form-select form-select-sm">
+                    <option value="COMMERCIAL_GOODS">Commercial</option>
+                    <option value="HOUSEHOLD">Household</option>
+                    <option value="ELECTRONICS">Electronics</option>
+                    <option value="FURNITURE">Furniture</option>
+                    <option value="DOCUMENTS">Documents</option>
+                    <option value="FRAGILE">Fragile</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div class="col-7">
+                  <input id="b-desc" name="packageDescription" type="text" class="form-control form-control-sm"
+                         value="Packed commercial cartons" placeholder="What are you shipping?" required>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex flex-wrap gap-2">
+                  <label class="tactile-toggle py-1 px-2" for="b-fragile">
+                    <input id="b-fragile" type="checkbox">
+                    <span class="tactile-dot"></span>
+                    <span>Fragile</span>
+                  </label>
+                  <label class="tactile-toggle py-1 px-2" for="b-gst">
+                    <input id="b-gst" type="checkbox">
+                    <span class="tactile-dot"></span>
+                    <span>18% GST Invoice</span>
+                  </label>
+                </div>
+                <button type="button" id="btn-refresh-quote" class="btn btn-sm btn-as-ghost py-1 text-nowrap">
+                  Update Fare
+                </button>
+              </div>
+            </div>
+
+            <!-- Vehicle Selector Cards -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="as-label mb-0">Select Vehicle Size</span>
+                <span id="b-ai-badge" class="as-badge as-badge-emerald">Recommended Fit</span>
+              </div>
+
+              <!-- Smart Vehicle Fitment Callout (Groq AI / Rule Fallback) -->
+              <div id="b-ai-advisor-card" class="ai-advisor-card mb-2" role="status">
+                <div class="d-flex align-items-center gap-1 fw-bold" style="font-size: 0.74rem; color: var(--as-highway);">
+                  <i id="b-ai-icon" class="bi bi-shield-check" aria-hidden="true"></i>
+                  <span id="b-ai-heading">Recommended Vehicle Fit</span>
+                </div>
+                <div id="b-ai-note" class="text-secondary mt-1" style="font-size: 0.76rem; line-height: 1.4;">
+                  Calculating optimal vehicle for your cargo weight and dimensions…
+                </div>
+              </div>
+
+              <div id="vehicle-cards-grid" class="d-flex flex-column gap-2"></div>
+            </div>
+
+            <!-- Fare Summary & Booking Submit -->
+            <div class="waybill-sheet">
+              <div class="p-3 small">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-secondary">Road Distance &amp; Drive Time</span>
+                  <span id="b-sum-dist" class="font-mono fw-semibold">— km</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-secondary">Subtotal (Base + Per-Km)</span>
+                  <span id="b-sum-core" class="font-mono fw-semibold">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">18% GST Tax</span>
+                  <span id="b-sum-extras" class="font-mono fw-semibold">₹0.00</span>
+                </div>
+              </div>
+              <div class="waybill-perforation p-3">
+                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                  <span class="small fw-bold">Total Payable</span>
+                  <span id="b-sum-total" class="display-font fw-bold fs-4 tabular-nums" style="color: var(--as-vermilion);">₹0.00</span>
+                </div>
+                <button type="submit" id="btn-book-submit" class="btn btn-as-primary w-100">
+                  Continue to Payment →
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Full-Bleed Interactive Map Stage -->
+        <div class="workbench-map-pane">
+          <div class="map-hud-pill">
+            <span>Click map to place:</span>
+            <button type="button" id="b-pin-pickup" class="pin-mode-btn pickup-mode active" aria-pressed="true">
+              <span class="pin-mode-dot" aria-hidden="true"></span>
+              <span id="lbl-b-pin-pickup">Pickup · Active</span>
+            </button>
+            <button type="button" id="b-pin-drop" class="pin-mode-btn drop-mode" aria-pressed="false">
+              <span class="pin-mode-dot" aria-hidden="true"></span>
+              <span id="lbl-b-pin-drop">Drop-off</span>
+            </button>
+          </div>
+          <div id="booking-map" class="workbench-map-canvas" aria-label="Full-screen booking map"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: MY SHIPMENTS + STRICT NON-OVERLAPPING LIVE MAP -->
+      <section id="tab-shipments" class="map-workbench d-none">
+        <!-- Left Column: Strict Grid Track (Never Overlaps Map) -->
+        <div class="workbench-drawer">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <span id="shipments-count-label" class="small fw-semibold text-secondary">Recent Shipments</span>
+            <button type="button" id="btn-reload-shipments" class="btn btn-sm btn-as-ghost py-1 px-2 flex-shrink-0 text-nowrap">
+              <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh
+            </button>
+          </div>
+
+          <div id="shipments-list" class="d-flex flex-column gap-2 mb-3"></div>
+
+          <!-- Selected Shipment Detail Card -->
+          <div id="tracking-empty" class="as-panel p-4 text-center text-secondary small">
+            Select any shipment above to view delivery progress, assigned driver details, payment receipt, and live GPS location.
+          </div>
+
+          <div id="tracking-panel" class="waybill-sheet d-none">
+            <div class="waybill-header d-flex justify-content-between align-items-center gap-2">
+              <div class="min-w-0">
+                <div id="trk-ref" class="tracking-id text-white d-block">#—</div>
+                <div id="trk-route" class="small text-white-50 text-truncate">—</div>
+              </div>
+              <div id="trk-badge" class="flex-shrink-0"></div>
+            </div>
+            <div class="p-3">
+              <div id="trk-stepper" class="mb-3"></div>
+
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" id="btn-trk-pay" class="btn btn-sm btn-as-primary flex-grow-1 d-none">
+                  Pay Now
+                </button>
+                <button type="button" id="btn-trk-cancel" class="btn btn-sm btn-outline-danger d-none">
+                  Cancel Shipment
+                </button>
+              </div>
+
+              <div class="row g-2 small mb-3">
+                <div class="col-6">
+                  <div class="p-2 rounded-2 h-100" style="background: var(--as-paper-deep);">
+                    <div class="as-label mb-1">Assigned Driver</div>
+                    <div id="trk-driver" class="fw-semibold small">—</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-2 rounded-2 h-100" style="background: var(--as-paper-deep);">
+                    <div class="as-label mb-1">Payment Status</div>
+                    <div id="trk-payment" class="fw-semibold small tabular-nums">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="as-label">Activity Timeline</div>
+                <div id="trk-timeline" class="as-timeline small mt-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Live Tracking Map -->
+        <div class="workbench-map-pane">
+          <div class="map-hud-pill">
+            <span class="corridor-dot"></span>
+            <span id="trk-gps-meta">Select a shipment to view live route</span>
+          </div>
+          <div id="tracking-map" class="workbench-map-canvas" aria-label="Live shipment tracking map"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: ACCOUNT SETTINGS & B2B COMMERCIAL PROFILE -->
+      <section id="tab-profile" class="ledger-scroll-pane d-none">
+        <div class="row g-4">
+          <!-- Left Column: Sender Profile + Saved Dispatch Pickup Hubs -->
+          <div class="col-12 col-xl-6 d-flex flex-column gap-4">
+            <div class="as-panel p-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="eyebrow-tag">SENDER PROFILE</div>
+                <span id="profile-auth-badge" class="as-badge as-badge-slate">Email &amp; Password</span>
+              </div>
+              <h2 class="h5 fw-bold mb-3">Contact &amp; Primary Sender Details</h2>
+
+              <form id="profile-form" novalidate>
+                <div data-form-error class="alert alert-danger py-2 small d-none" role="alert"></div>
+                <div class="row g-3">
+                  <div class="col-12 col-sm-6">
+                    <label for="p-name" class="as-label">Full Name</label>
+                    <input id="p-name" name="name" type="text" class="form-control" required>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label for="p-phone" class="as-label">10-Digit Mobile</label>
+                    <input id="p-phone" name="phone" type="tel" maxlength="10" class="form-control font-mono" required>
+                  </div>
+                  <div class="col-12">
+                    <label for="p-email" class="as-label">Registered Email (Read-only)</label>
+                    <input id="p-email" type="email" class="form-control bg-light" readonly>
+                  </div>
+                </div>
+                <button type="submit" id="btn-save-profile" class="btn btn-as-primary mt-3">
+                  Save Sender Details
+                </button>
+              </form>
+            </div>
+
+            <div class="as-panel p-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="eyebrow-tag">DEFAULT PICKUP ADDRESSES</div>
+                <span class="as-badge as-badge-slate">1-Click Fill</span>
+              </div>
+              <h2 class="h5 fw-bold mb-1">Saved Warehouses &amp; Dispatch Hubs</h2>
+              <p class="small text-secondary mb-3">
+                Save your recurring shop, factory, or warehouse pickup addresses for 1-click dispatch booking.
+              </p>
+
+              <div id="saved-hubs-list" class="d-flex flex-column gap-2 mb-3"></div>
+
+              <form id="saved-hub-form" class="pt-3 border-top" novalidate>
+                <div class="row g-2">
+                  <div class="col-12 col-sm-4">
+                    <input id="hub-label" type="text" class="form-control form-control-sm"
+                           placeholder="Hub Name (e.g. Okhla Bay 2)" required>
+                  </div>
+                  <div class="col-12 col-sm-8 geocode-wrap">
+                    <input id="hub-address" type="text" class="form-control form-control-sm"
+                           placeholder="Full pickup street address &amp; city" required>
+                    <input id="hub-lat" type="hidden" value="28.5355">
+                    <input id="hub-lng" type="hidden" value="77.2732">
+                    <input id="hub-city" type="hidden" value="Delhi">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-as-navy mt-2">
+                  + Save Pickup Address
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right Column: B2B GST Profile + Tax Invoice Download History -->
+          <div class="col-12 col-xl-6 d-flex flex-column gap-4">
+            <div class="as-panel p-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="eyebrow-tag">BUSINESS &amp; TAX PROFILE</div>
+                <span class="as-badge as-badge-emerald">18% GST Ready</span>
+              </div>
+              <h2 class="h5 fw-bold mb-1">GSTIN &amp; Commercial Billing Entity</h2>
+              <p class="small text-secondary mb-3">
+                Printed automatically on your downloadable freight tax invoices for input tax credit (ITC) claims.
+              </p>
+
+              <form id="b2b-tax-form" novalidate>
+                <div class="row g-3">
+                  <div class="col-12 col-sm-7">
+                    <label for="b2b-company" class="as-label">Business / Legal Entity Name</label>
+                    <input id="b2b-company" type="text" class="form-control"
+                           placeholder="e.g. Sharma Electricals &amp; Spares Pvt. Ltd.">
+                  </div>
+                  <div class="col-12 col-sm-5">
+                    <label for="b2b-gstin" class="as-label">15-Digit GSTIN (Optional)</label>
+                    <input id="b2b-gstin" type="text" maxlength="15" class="form-control font-mono text-uppercase"
+                           placeholder="07AABCU9603R1ZM">
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label for="b2b-state" class="as-label">Place of Supply (State)</label>
+                    <select id="b2b-state" class="form-select">
+                      <option value="07 - Delhi">07 — Delhi (NCT)</option>
+                      <option value="06 - Haryana">06 — Haryana</option>
+                      <option value="09 - Uttar Pradesh">09 — Uttar Pradesh</option>
+                      <option value="27 - Maharashtra">27 — Maharashtra</option>
+                      <option value="29 - Karnataka">29 — Karnataka</option>
+                      <option value="36 - Telangana">36 — Telangana</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-6 d-flex align-items-end">
+                    <label class="tactile-toggle w-100 justify-content-center" for="b2b-default-gst">
+                      <input id="b2b-default-gst" type="checkbox" checked>
+                      <span class="tactile-dot"></span>
+                      <span>Default 18% GST on Bookings</span>
+                    </label>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-as-navy mt-3">
+                  Save Business &amp; GST Profile
+                </button>
+              </form>
+            </div>
+
+            <div class="as-panel p-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="eyebrow-tag">TAX INVOICES &amp; RECEIPTS</div>
+                <button type="button" id="btn-refresh-invoices" class="btn btn-sm btn-as-ghost py-0 px-2">
+                  Refresh
+                </button>
+              </div>
+              <h2 class="h5 fw-bold mb-1">Downloadable Freight Tax Invoices</h2>
+              <p class="small text-secondary mb-3">
+                Download itemized INR freight receipts and 18% GST invoices for paid or delivered shipments.
+              </p>
+
+              <div id="invoice-history-list" class="d-flex flex-column gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Payment Checkout Modal -->
+  <div id="checkout-modal-backdrop" class="position-fixed top-0 start-0 w-100 h-100 d-none p-3"
+       style="background: rgba(15,23,42,0.72); z-index: 1080; overflow-y: auto;">
+    <div class="waybill-sheet w-100" style="margin: auto; max-width: 450px; max-height: calc(100dvh - 2rem); overflow-y: auto;">
+      <div class="waybill-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="small text-white-50" style="font-size:0.72rem;">Secure Freight Checkout</div>
+          <div class="fw-bold">Confirm &amp; Dispatch Shipment</div>
+        </div>
+        <button type="button" id="btn-close-checkout" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+      </div>
+      <div class="p-4">
+        <div class="p-3 rounded-2 mb-3" style="background: var(--as-paper-deep);">
+          <div class="d-flex justify-content-between small mb-1">
+            <span class="text-secondary">Tracking ID</span>
+            <span id="chk-ref" class="font-mono fw-bold">—</span>
+          </div>
+          <div class="d-flex justify-content-between small mb-1">
+            <span class="text-secondary">Order Reference</span>
+            <span id="chk-order-id" class="font-mono small text-truncate ms-2">—</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-baseline pt-2 mt-2 border-top">
+            <span class="fw-bold small">Amount Payable</span>
+            <span id="chk-amount" class="display-font fw-bold fs-4 tabular-nums" style="color: var(--as-vermilion);">₹0.00</span>
+          </div>
+        </div>
+
+        <p id="chk-mode-note" class="small text-secondary mb-3"></p>
+
+        <div class="d-grid gap-2">
+          <button type="button" id="btn-razorpay-live" class="btn btn-as-primary d-none">
+            Pay Now
+          </button>
+          <button type="button" id="btn-razorpay-sim" class="btn btn-as-primary d-none">
+            Confirm Payment &amp; Dispatch Driver →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/customer.js"></script>
+</body>
+</html>

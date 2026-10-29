@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Apna Samaan — Intra-city and inter-city commercial goods transport across India. Instant per-kilometre fare quotes, verified vehicles, and live GPS tracking.">
+  <title>Apna Samaan — Goods Delivery &amp; Commercial Fleet Dispatch Across India</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body data-page="home">
+  <a href="#fare-estimator" class="skip-link">Skip to instant fare calculator</a>
+
+  <!-- Top Operational Coverage Bar -->
+  <div class="corridor-strip">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="corridor-dot" aria-hidden="true"></span>
+        <span>Active Across Delhi NCR · Mumbai · Bengaluru · Pune · Hyderabad &amp; Inter-City Highway Routes</span>
+      </div>
+      <div class="d-none d-md-block">
+        <span>Typical Doorstep Pickup in 45–90 Min · 18% GST Tax Invoices</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-navbar"></div>
+
+  <main id="main-content" class="flex-grow-1">
+    <!-- ===================================================================
+         HERO: Audience Switcher (Shippers vs Drivers) + Photographic Fleet Stage
+         =================================================================== -->
+    <section class="hero-editorial">
+      <div class="container">
+        <div class="row align-items-center gy-4 gx-lg-5">
+          <!-- Left Column: Audience Toggle + Value Proposition -->
+          <div class="col-12 col-lg-6">
+            <div class="mb-3">
+              <div class="audience-switch" role="tablist" aria-label="Choose your role">
+                <button type="button" id="aud-shipper" class="audience-tab active" role="tab" aria-selected="true">
+                  For Shippers &amp; Businesses
+                </button>
+                <button type="button" id="aud-driver" class="audience-tab" role="tab" aria-selected="false">
+                  For Driver Partners
+                </button>
+              </div>
+            </div>
+
+            <!-- SHIPPER HERO PANE -->
+            <div id="hero-shipper-pane">
+              <div class="mb-3">
+                <span class="price-anchor-pill">
+                  <i class="bi bi-tag-fill" aria-hidden="true"></i>
+                  <span>Fares starting at ₹40 (2-Wheeler) · ₹180 (Cargo Auto)</span>
+                </span>
+              </div>
+
+              <h1 class="hero-headline mb-3">
+                Road-accurate freight dispatch,
+                <span class="accent-underline">priced to the kilometre.</span>
+              </h1>
+
+              <p class="fs-6 text-dark fw-medium mb-2" style="max-width: 34rem;">
+                Move urgent 15 kg spare parts on a 2-wheeler or 3.5-tonne palletized stock in an enclosed 14ft container truck.
+              </p>
+              <p class="small text-secondary mb-4" style="max-width: 34rem;">
+                Upfront road-distance pricing with zero surge surprises, verified commercial drivers, and live door-to-door GPS tracking.
+              </p>
+
+              <div class="d-flex flex-wrap gap-2 mb-4 pb-1">
+                <a href="#fare-estimator" class="btn btn-as-primary">
+                  Get Instant Fare Estimate <i class="bi bi-arrow-down-short ms-1" aria-hidden="true"></i>
+                </a>
+                <a href="register-customer.html" id="hero-shipper-secondary" class="btn btn-as-ghost">
+                  Create Free Shipper Account
+                </a>
+              </div>
+
+              <div class="row g-3 pt-3 border-top">
+                <div class="col-4">
+                  <div class="display-font fw-bold hero-kpi-val">4 Vehicle Types</div>
+                  <div class="small text-secondary">Bike to 14ft Truck</div>
+                </div>
+                <div class="col-4">
+                  <div class="display-font fw-bold hero-kpi-val">&lt; 60 sec</div>
+                  <div class="small text-secondary">Avg. Driver Match</div>
+                </div>
+                <div class="col-4">
+                  <div class="display-font fw-bold hero-kpi-val">45–90 min</div>
+                  <div class="small text-secondary">Typical Pickup SLA</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DRIVER PARTNER HERO PANE -->
+            <div id="hero-driver-pane" class="d-none">
+              <div class="mb-3">
+                <span class="price-anchor-pill">
+                  <i class="bi bi-cash-stack" aria-hidden="true"></i>
+                  <span>Partner operators earn ₹18,000 – ₹88,000 / month*</span>
+                </span>
+              </div>
+
+              <h2 class="hero-headline mb-3">
+                Attach your commercial vehicle.
+                <span class="accent-underline">Get nearby loads in 60 seconds.</span>
+              </h2>
+
+              <p class="fs-6 text-dark fw-medium mb-2" style="max-width: 34rem;">
+                Own a 2-Wheeler, Cargo Auto, 8ft Mini Truck, or 14ft Container Truck? Go on duty whenever you choose.
+              </p>
+              <p class="small text-secondary mb-4" style="max-width: 34rem;">
+                See the exact trip payout, pickup distance, and drop-off corridor upfront before accepting any load.
+              </p>
+
+              <div class="d-flex flex-wrap gap-2 mb-4 pb-1">
+                <a href="register-driver.html" class="btn btn-as-primary">
+                  Attach Your Vehicle Now →
+                </a>
+                <a href="login.html" class="btn btn-as-ghost">
+                  Existing Driver Sign In
+                </a>
+              </div>
+
+              <div class="row g-3 pt-3 border-top">
+                <div class="col-4">
+                  <div class="fw-bold small text-dark">1. Upload DL &amp; RC</div>
+                  <div class="small text-secondary">2-minute digital KYC</div>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold small text-dark">2. Quick Approval</div>
+                  <div class="small text-secondary">Verified within 24 hrs</div>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold small text-dark">3. Start Earning</div>
+                  <div class="small text-secondary">Transparent per-km pay</div>
+                </div>
+              </div>
+              <div class="text-secondary mt-2" style="font-size:0.73rem;">
+                *Gross monthly earnings depend on vehicle class, city demand, and 8–10 active duty hours/day.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Photographic Commercial Fleet Stage -->
+          <div class="col-12 col-lg-6">
+            <div class="fleet-stage" aria-label="Interactive commercial vehicle selector">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <span class="fw-bold small text-dark">Compare Commercial Fleet</span>
+                <span id="stage-context-chip" class="small fw-semibold" style="color:var(--navy);">Click size to preview rates</span>
+              </div>
+
+              <div id="fleet-stage-tabs" class="fleet-stage-tabs" role="tablist" aria-label="Vehicle classes">
+                <!-- Populated dynamically from /api/v1/vehicle-types -->
+              </div>
+
+              <div class="fleet-stage-canvas">
+                <div id="fleet-stage-art"></div>
+              </div>
+
+              <div class="row g-2 align-items-end pt-1">
+                <div class="col-12 col-sm-7">
+                  <h2 id="stage-vehicle-name" class="h4 fw-bold mb-1">Cargo Auto</h2>
+                  <p id="stage-vehicle-desc" class="small text-secondary mb-0">
+                    3-wheeler commercial loader for wholesale cartons, appliances &amp; shop restocking.
+                  </p>
+                </div>
+                <div class="col-12 col-sm-5 text-sm-end">
+                  <div id="stage-rate-caption" class="small text-secondary">Starting at</div>
+                  <span id="stage-rate-pill" class="display-font fw-bold fs-4 text-dark text-nowrap">₹180 + ₹18/km</span>
+                </div>
+              </div>
+
+              <!-- Visual Payload Scale Meter -->
+              <div class="fleet-capacity-meter" aria-hidden="true">
+                <div id="stage-capacity-fill" class="fleet-capacity-fill" style="width: 38%;"></div>
+              </div>
+
+              <div class="fleet-spec-strip">
+                <div>
+                  <div class="small text-secondary" style="font-size:0.74rem;">Max Payload</div>
+                  <div id="stage-max-weight" class="fw-bold small tabular-nums">500 kg</div>
+                </div>
+                <div>
+                  <div class="small text-secondary" style="font-size:0.74rem;">Cargo Deck Size</div>
+                  <div id="stage-max-dims" class="fw-bold small tabular-nums">170×120×120 cm</div>
+                </div>
+                <div>
+                  <div id="stage-third-label" class="small text-secondary" style="font-size:0.74rem;">Base Fare</div>
+                  <div id="stage-base-fare" class="fw-bold small tabular-nums">₹180.00</div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-1">
+                <button type="button" id="btn-stage-use-vehicle" class="btn btn-sm btn-as-navy w-100">
+                  Check Fare with Cargo Auto ↓
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust & SLA Strip -->
+    <div class="trust-strip">
+      <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <span class="trust-pill">
+          <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+          <span>100% DL &amp; RC Verified Fleet</span>
+        </span>
+        <span class="trust-pill">
+          <i class="bi bi-stopwatch-fill" aria-hidden="true"></i>
+          <span>Typical Doorstep Pickup in 45–90 Min</span>
+        </span>
+        <span class="trust-pill">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          <span>Verified Handling &amp; Transit Care</span>
+        </span>
+        <span class="trust-pill">
+          <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+          <span>Free Pre-Pickup Cancellation &amp; 100% Refund</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Human Social Proof Band -->
+    <section class="social-proof-band" aria-label="Commercial customer proof">
+      <div class="container">
+        <div class="social-proof-grid">
+          <div>
+            <div class="small fw-bold text-uppercase mb-2" style="font-size:0.72rem;letter-spacing:0.06em;color:var(--navy);">
+              Built for Daily Indian Commercial Dispatches
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="partner-badge"><i class="bi bi-building text-secondary"></i> Okhla Industrial Spares · Delhi</span>
+              <span class="partner-badge"><i class="bi bi-box-seam text-secondary"></i> Bhiwandi Wholesale Depot · Mumbai</span>
+              <span class="partner-badge"><i class="bi bi-cpu text-secondary"></i> Peenya Machine Works · Bengaluru</span>
+              <span class="partner-badge"><i class="bi bi-truck text-secondary"></i> Chakan Auto Components · Pune</span>
+            </div>
+          </div>
+          <div>
+            <div class="shipper-proof-chip">
+              <div class="shipper-avatar" aria-hidden="true">RK</div>
+              <div class="small">
+                <div class="fw-semibold text-dark" style="line-height:1.35;">
+                  “Replaced three local transporter numbers with one screen — upfront per-km fares and clean GST invoices on every dispatch.”
+                </div>
+                <div class="text-secondary mt-1" style="font-size:0.74rem;">
+                  Rajesh Khanna · Electricals Distributor, Naraina Phase II, New Delhi
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         INSTANT FARE CALCULATOR: Live Reactive Form + Receipt + Full-Width Map
+         =================================================================== -->
+    <section id="fare-estimator" class="section-band-slate py-5">
+      <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
+          <div>
+            <div class="eyebrow-tag mb-1">INSTANT FARE CALCULATOR</div>
+            <h2 class="h2 fw-bold mb-0">Check Exact Door-to-Door Delivery Price</h2>
+          </div>
+          <div class="small text-secondary fw-medium">
+            No sign-up needed · Updates automatically as you edit
+          </div>
+        </div>
+
+        <!-- Sample Route Quick-Fill Chips -->
+        <div class="mb-4">
+          <span class="small fw-semibold text-secondary d-block mb-2">Try a popular commercial route:</span>
+          <div id="route-presets" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+          <!-- Left: Streamlined 3-Step Form (No Redundant City Inputs) -->
+          <div class="col-12 col-lg-7">
+            <form id="quote-form" class="as-panel p-4 h-100 d-flex flex-column justify-content-between" novalidate>
+              <div>
+                <div data-form-error class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+                <!-- Step 1: Addresses Only (Cities auto-derived silently) -->
+                <div class="mb-4 pb-3 border-bottom">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="step-kicker"><span class="step-num">1</span> Pickup &amp; Drop-off Locations</span>
+                    <span class="small text-secondary">Search an address or click the map below</span>
+                  </div>
+
+                  <div class="route-rail">
+                    <div class="route-stop mb-3">
+                      <div class="geocode-wrap">
+                        <label for="q-pickup-address" class="as-label">Pickup Address</label>
+                        <div class="input-stop-field">
+                          <span class="input-stop-marker pickup" aria-hidden="true"></span>
+                          <input id="q-pickup-address" type="text" class="form-control"
+                                 placeholder="Search shop, warehouse, or landmark in India" required>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="route-stop drop">
+                      <div class="geocode-wrap">
+                        <label for="q-drop-address" class="as-label">Drop-off Address</label>
+                        <div class="input-stop-field">
+                          <span class="input-stop-marker drop" aria-hidden="true"></span>
+                          <input id="q-drop-address" type="text" class="form-control"
+                                 placeholder="Search customer or warehouse destination" required>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Auto-derived cities & coordinates -->
+                  <input id="q-pickup-city" type="hidden" value="Delhi">
+                  <input id="q-drop-city" type="hidden" value="Gurugram">
+                  <input id="q-pickup-lat" type="hidden" value="28.6315">
+                  <input id="q-pickup-lng" type="hidden" value="77.2167">
+                  <input id="q-drop-lat" type="hidden" value="28.4950">
+                  <input id="q-drop-lng" type="hidden" value="77.0895">
+                </div>
+
+                <!-- Step 2: Cargo Weight & Size -->
+                <div class="mb-4 pb-3 border-bottom">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="step-kicker"><span class="step-num">2</span> Cargo Weight &amp; Dimensions</span>
+                    <span class="small text-secondary">Auto-matches the right vehicle size</span>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-6 col-sm-3">
+                      <label for="q-weight" class="as-label">Weight (kg)</label>
+                      <input id="q-weight" name="weightKg" type="number" step="0.5" min="0.5" max="3500"
+                             class="form-control tabular-nums" value="85" required>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <label for="q-length" class="as-label">Length (cm)</label>
+                      <input id="q-length" name="lengthCm" type="number" step="1" min="5" max="420"
+                             class="form-control tabular-nums" value="95" required>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <label for="q-width" class="as-label">Width (cm)</label>
+                      <input id="q-width" name="widthCm" type="number" step="1" min="5" max="200"
+                             class="form-control tabular-nums" value="70" required>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <label for="q-height" class="as-label">Height (cm)</label>
+                      <input id="q-height" name="heightCm" type="number" step="1" min="5" max="210"
+                             class="form-control tabular-nums" value="65" required>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 3: Goods Type & Unified Option Chips -->
+                <div class="mb-3">
+                  <div class="mb-2">
+                    <span class="step-kicker"><span class="step-num">3</span> Goods Type &amp; Invoice Options</span>
+                  </div>
+                  <div class="row g-2 mb-3">
+                    <div class="col-12 col-sm-6">
+                      <label for="q-category" class="as-label">What are you shipping?</label>
+                      <select id="q-category" name="packageCategory" class="form-select">
+                        <option value="COMMERCIAL_GOODS" selected>Commercial Stock / Cartons</option>
+                        <option value="HOUSEHOLD">Home Shifting / Appliances</option>
+                        <option value="ELECTRONICS">Electronics &amp; IT Hardware</option>
+                        <option value="FURNITURE">Furniture &amp; Fixtures</option>
+                        <option value="DOCUMENTS">Documents &amp; Small Parcels</option>
+                        <option value="FRAGILE">Glassware &amp; Fragile Items</option>
+                        <option value="OTHER">Other General Goods</option>
+                      </select>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                      <label for="q-vehicle" class="as-label">Vehicle Preference</label>
+                      <select id="q-vehicle" name="vehicleTypeCode" class="form-select">
+                        <option value="">Let us pick the best fit</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-wrap gap-2">
+                    <label class="tactile-toggle" for="q-fragile">
+                      <input id="q-fragile" type="checkbox">
+                      <span class="tactile-dot"></span>
+                      <span>Fragile Handling</span>
+                    </label>
+                    <label class="tactile-toggle" for="q-gst">
+                      <input id="q-gst" type="checkbox" checked>
+                      <span class="tactile-dot"></span>
+                      <span>Include 18% GST Invoice</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" id="btn-calc-quote" class="btn btn-as-navy w-100">
+                  Recalculate Fare Estimate
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Live Itemized Fare Receipt Card -->
+          <div class="col-12 col-lg-5">
+            <div id="quote-sheet-card" class="waybill-sheet h-100 d-flex flex-column justify-content-between">
+              <div class="waybill-header d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="small text-white-50 d-block" style="font-size:0.75rem;">Live Price Breakdown</span>
+                  <span id="quote-computing-pill" class="small text-warning fw-semibold d-none">
+                    Calculating exact road distance…
+                  </span>
+                </div>
+                <span id="quote-route-source" class="as-badge as-badge-emerald">Verified Road Distance</span>
+              </div>
+
+              <div id="quote-empty" class="p-4 text-center text-secondary small my-auto">
+                Calculating your route distance and fare breakdown…
+              </div>
+
+              <div id="quote-result" class="d-none flex-grow-1 d-flex flex-column justify-content-between">
+                <div class="p-4 pb-3">
+                  <div class="d-flex align-items-center justify-content-between gap-3 pb-3 mb-3 border-bottom">
+                    <div>
+                      <div class="small text-secondary">Recommended Vehicle</div>
+                      <div id="quote-vehicle-name" class="h4 fw-bold mb-0">Cargo Auto</div>
+                      <div id="quote-distance" class="small text-secondary tabular-nums">18.4 km road route · ~29 min drive</div>
+                      <div class="small fw-semibold mt-1" style="color:var(--highway);font-size:0.76rem;">
+                        <i class="bi bi-clock-history me-1"></i>Typical pickup within 45–90 min
+                      </div>
+                    </div>
+                    <div id="quote-vehicle-art" style="width: 112px; flex-shrink: 0;"></div>
+                  </div>
+
+                  <div class="small">
+                    <div class="d-flex justify-content-between py-1">
+                      <span class="text-secondary">Base Fare</span>
+                      <span id="quote-base" class="font-mono fw-semibold">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                      <span class="text-secondary">Road Distance Charge</span>
+                      <span id="quote-dist-charge" class="font-mono fw-semibold">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                      <span class="text-secondary">Subtotal (Excl. Tax)</span>
+                      <span id="quote-fragile-charge" class="font-mono fw-semibold">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                      <span class="text-secondary">GST (18% Tax Invoice)</span>
+                      <span id="quote-gst-charge" class="font-mono fw-semibold">₹0.00</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="waybill-perforation p-4 pt-3">
+                  <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <span class="fw-bold">Total Payable</span>
+                    <span id="quote-total" class="display-font fw-bold fs-2 tabular-nums" style="color: var(--vermilion);">₹0.00</span>
+                  </div>
+
+                  <div class="p-2 px-3 rounded-2 mb-3 small" style="background: var(--paper); border-left: 3px solid var(--highway);">
+                    <div id="quote-ai-title" class="fw-semibold" style="font-size:0.75rem; color: var(--highway);">Vehicle Fitment &amp; Protection</div>
+                    <div id="quote-ai-reason" class="text-secondary" style="font-size:0.8rem;"></div>
+                  </div>
+
+                  <a href="register-customer.html" id="btn-book-now" class="btn btn-as-primary w-100 py-2">
+                    Book This Shipment →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full-Width Integrated Route Map (No Orphan Column, No P/D Dev Chrome) -->
+          <div class="col-12">
+            <div class="as-panel p-3">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 px-1">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-pin-map-fill" style="color:var(--navy);" aria-hidden="true"></i>
+                  <span class="small fw-bold text-dark">Interactive Route Preview</span>
+                  <span id="map-pin-hint" class="small text-secondary d-none d-sm-inline">· Click map to place Pickup location</span>
+                </div>
+                <div class="d-flex flex-wrap gap-2" role="group" aria-label="Pin placement mode">
+                  <button type="button" id="btn-pin-pickup" class="pin-mode-btn pickup-mode active" aria-pressed="true">
+                    <span class="pin-mode-dot" aria-hidden="true"></span>
+                    <span id="lbl-pin-pickup">Set Pickup Pin · Active</span>
+                  </button>
+                  <button type="button" id="btn-pin-drop" class="pin-mode-btn drop-mode" aria-pressed="false">
+                    <span class="pin-mode-dot" aria-hidden="true"></span>
+                    <span id="lbl-pin-drop">Set Drop-off Pin</span>
+                  </button>
+                </div>
+              </div>
+              <div id="landing-map" class="as-map-frame" aria-label="Interactive pickup and drop-off route map"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         WHY APNA SAMAAN: Clear Commercial Shipper Guarantees
+         =================================================================== -->
+    <section id="why-apna-samaan" class="section-band-white py-5">
+      <div class="container">
+        <div class="mb-4">
+          <div class="eyebrow-tag mb-1">WHY BUSINESSES SHIP WITH US</div>
+          <h2 class="h2 fw-bold mb-0" style="max-width: 38rem;">
+            Built for predictable commercial deliveries, not surge-price surprises.
+          </h2>
+        </div>
+
+        <div class="ledger-matrix">
+          <div class="ledger-row">
+            <div class="ledger-idx">01 · Upfront Pricing</div>
+            <div class="h5 fw-bold mb-0">No Haggling or Surge Spikes</div>
+            <div class="small text-secondary">
+              Fares are locked upfront from verified road distance and vehicle class before you pay. What appears on your instant estimate is the exact rupee total on your GST-compliant tax invoice.
+            </div>
+          </div>
+
+          <div class="ledger-row">
+            <div class="ledger-idx">02 · Verified Fleet</div>
+            <div class="h5 fw-bold mb-0">DL &amp; Commercial RC Checked</div>
+            <div class="small text-secondary">
+              Every driver partner submits their Driving Licence and Commercial Vehicle Registration Certificate for manual operations verification before accepting a single load, with optional fragile-cargo care.
+            </div>
+          </div>
+
+          <div class="ledger-row">
+            <div class="ledger-idx">03 · Pickup SLA</div>
+            <div class="h5 fw-bold mb-0">Matched in 60s · Doorstep Pickup in 45–90 Min</div>
+            <div class="small text-secondary">
+              Your confirmed booking dispatches immediately to the closest on-duty commercial vehicle in your pickup zone, with live GPS tracking from loading dock to receiver sign-off.
+            </div>
+          </div>
+
+          <div class="ledger-row">
+            <div class="ledger-idx">04 · Protected Pay</div>
+            <div class="h5 fw-bold mb-0">Secure Online Checkout &amp; Instant Refunds</div>
+            <div class="small text-secondary">
+              Pay via UPI, corporate cards, or netbanking powered by Razorpay. Schedule changed before loading? Cancel in one click for an automatic 100% refund.
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-Column Audience Cards -->
+        <div class="row g-4 mt-4 pt-2">
+          <div class="col-12 col-md-6">
+            <div class="as-panel p-4 h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="eyebrow-tag mb-1">FOR SHIPPERS &amp; SMES</div>
+                <h3 class="h4 fw-bold">Shipper Booking Dashboard</h3>
+                <p class="small text-secondary mb-3">
+                  Book 2-Wheelers, Cargo Autos, Mini Trucks, and 14ft Container Trucks on a live map, download GST-ready receipts, and share live delivery tracking with your customers.
+                </p>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="register-customer.html" id="card-shipper-cta" class="btn btn-as-primary btn-sm">Create Free Shipper Account</a>
+                <a href="login.html" id="card-shipper-login" class="btn btn-as-ghost btn-sm">Sign In</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="as-panel p-4 h-100 d-flex flex-column justify-content-between" style="background: var(--as-ink); color: #f8fafc;">
+              <div>
+                <div class="small fw-bold text-warning text-uppercase mb-1" style="letter-spacing:0.06em;font-size:0.75rem;">FOR VEHICLE OWNERS &amp; DRIVERS</div>
+                <h3 class="h4 fw-bold text-white">Attach Your Commercial Vehicle</h3>
+                <p class="small mb-2" style="color:#cbd5e1;">
+                  Partner operators earn ₹18,000 – ₹88,000/month* across intra-city and highway corridors. Choose your own duty hours and view full trip payouts upfront.
+                </p>
+                <p class="mb-3" style="color:#94a3b8;font-size:0.72rem;">
+                  *Depends on vehicle size (2-Wheeler to 14ft Truck) and 8–10 active duty hours/day.
+                </p>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="register-driver.html" id="card-driver-cta" class="btn btn-as-primary btn-sm">Apply as Driver Partner →</a>
+                <a href="login.html" id="card-driver-login" class="btn btn-outline-light btn-sm">Driver Sign In</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/landing.js"></script>
+</body>
+</html>

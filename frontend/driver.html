@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Dispatch Terminal — Apna Samaan</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Asphalt Sidebar Rail -->
+    <aside id="driver-rail" class="app-rail"></aside>
+
+    <main class="app-workspace">
+      <!-- Top Bar with Live Duty Switch -->
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="small fw-semibold text-secondary d-none d-md-inline">Driver Console ·</span>
+          <span id="drv-name" class="fw-bold">Driver Partner</span>
+          <span id="drv-approval-badge"></span>
+          <span id="drv-plate-chip" class="font-mono small text-secondary d-none d-sm-inline"></span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <label class="tactile-toggle" for="toggle-online">
+            <input id="toggle-online" type="checkbox">
+            <span class="tactile-dot"></span>
+            <span id="lbl-duty-state" class="font-mono">OFF DUTY</span>
+          </label>
+          <button type="button" id="btn-drv-mobile-logout" class="btn btn-sm btn-as-ghost d-lg-none py-1">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: DISPATCH DRAWER + FULL-BLEED RADAR MAP -->
+      <section id="dtab-radar" class="map-workbench">
+        <div class="workbench-drawer">
+          <!-- KYC Warning Banner (shown until APPROVED) -->
+          <div id="kyc-banner" class="as-panel p-3 mb-3 d-none" style="border-left: 4px solid #b45309 !important;">
+            <div class="font-mono small fw-bold text-warning-emphasis mb-1" id="kyc-banner-title">KYC VERIFICATION PENDING</div>
+            <div class="small text-secondary" id="kyc-banner-body"></div>
+          </div>
+
+          <!-- Operator Vehicle Strip -->
+          <div class="as-panel p-3 mb-3 d-flex align-items-center justify-content-between gap-2">
+            <div>
+              <div class="as-label mb-0">Registered Commercial Unit</div>
+              <div id="drv-meta" class="fw-bold small">—</div>
+            </div>
+            <div id="drv-unit-art" style="width: 112px;"></div>
+          </div>
+
+          <!-- 60-Second Job Offer Spotlight -->
+          <div id="offers-section" class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="as-label mb-0">Incoming Load Offers</span>
+              <span class="small text-secondary" style="font-size:0.74rem;">Live Queue</span>
+            </div>
+            <div id="offers-container"></div>
+          </div>
+
+          <!-- Active Assigned Waybill Execution -->
+          <div class="mb-3">
+            <span class="as-label">Active Assigned Shipment</span>
+            <div id="active-job-empty" class="as-panel p-3 small text-secondary text-center">
+              No active shipment assigned. Switch ON DUTY and share your city location below to receive nearby load offers.
+            </div>
+
+            <div id="active-job-panel" class="waybill-sheet d-none">
+              <div class="waybill-header d-flex justify-content-between align-items-center gap-2">
+                <span id="aj-title" class="tracking-id text-white">#—</span>
+                <span id="aj-badge" class="flex-shrink-0"></span>
+              </div>
+              <div class="p-3">
+                <div id="aj-stepper" class="mb-3"></div>
+                <div class="small mb-3">
+                  <div class="mb-2">
+                    <span class="as-label mb-0" style="color: var(--as-highway);">Origin Pickup</span>
+                    <div id="aj-pickup" class="fw-semibold">—</div>
+                    <div id="aj-pickup-contact" class="font-mono text-secondary" style="font-size:0.74rem;">—</div>
+                  </div>
+                  <div>
+                    <span class="as-label mb-0" style="color: var(--as-vermilion);">Destination Dropoff</span>
+                    <div id="aj-drop" class="fw-semibold">—</div>
+                    <div id="aj-drop-contact" class="font-mono text-secondary" style="font-size:0.74rem;">—</div>
+                  </div>
+                </div>
+                <div id="aj-actions" class="d-grid gap-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clean Live GPS Status + Collapsible Developer Telemetry Simulator -->
+          <div class="as-panel p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="corridor-dot" aria-hidden="true"></span>
+                <span class="as-label mb-0">Live Vehicle GPS</span>
+              </div>
+              <label class="tactile-toggle py-1 px-2" for="toggle-auto-gps">
+                <input id="toggle-auto-gps" type="checkbox" checked>
+                <span class="tactile-dot"></span>
+                <span>Auto Sync (10s)</span>
+              </label>
+            </div>
+
+            <button type="button" id="btn-gps-browser" class="btn btn-sm btn-as-navy w-100">
+              <i class="bi bi-crosshair me-1" aria-hidden="true"></i>Use My Device GPS
+            </button>
+
+            <div id="gps-last-sent" class="text-secondary mt-2 text-center" style="font-size:0.74rem;">
+              Click anywhere on the map or tap above to update your vehicle location.
+            </div>
+
+            <details class="gps-sim-accordion mt-2">
+              <summary>
+                <span><i class="bi bi-sliders2 me-1" aria-hidden="true"></i>Developer / Telemetry Simulator</span>
+                <i class="bi bi-chevron-down sim-chevron" aria-hidden="true"></i>
+              </summary>
+              <div class="p-2 pt-2">
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label for="gps-lat" class="small text-secondary" style="font-size:0.7rem;">Latitude</label>
+                    <input id="gps-lat" type="number" step="0.0001" class="form-control form-control-sm font-mono" value="28.6315">
+                  </div>
+                  <div class="col-6">
+                    <label for="gps-lng" class="small text-secondary" style="font-size:0.7rem;">Longitude</label>
+                    <input id="gps-lng" type="number" step="0.0001" class="form-control form-control-sm font-mono" value="77.2167">
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  <button type="button" id="btn-gps-delhi" class="corridor-chip py-1 px-2">Delhi CP</button>
+                  <button type="button" id="btn-gps-mumbai" class="corridor-chip py-1 px-2">Mumbai MIDC</button>
+                  <button type="button" id="btn-gps-blr" class="corridor-chip py-1 px-2">Bengaluru</button>
+                </div>
+                <button type="button" id="btn-send-gps" class="btn btn-sm btn-as-ghost w-100">
+                  Broadcast Simulated Coordinates
+                </button>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Full-Bleed Radar & Route Map -->
+        <div class="workbench-map-pane">
+          <div class="map-hud-pill">
+            <span class="corridor-dot"></span>
+            <span>Click map to update your live vehicle location</span>
+          </div>
+          <div id="driver-map" class="workbench-map-canvas" aria-label="Driver navigation map"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: COMPLETED HAUL LEDGER -->
+      <section id="dtab-history" class="ledger-scroll-pane d-none">
+        <div class="as-panel p-4">
+          <div class="eyebrow-tag mb-1">OPERATOR EARNINGS LEDGER</div>
+          <h2 class="h5 fw-bold mb-3">Assigned &amp; Completed Waybills</h2>
+          <div class="table-responsive">
+            <table class="table as-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Waybill</th>
+                  <th>Corridor</th>
+                  <th>Distance</th>
+                  <th>Gross Tariff</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="drv-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: KYC & COMMERCIAL DOCUMENTS -->
+      <section id="dtab-kyc" class="ledger-scroll-pane d-none">
+        <div class="row g-4">
+          <div class="col-12 col-lg-7">
+            <div class="as-panel p-4">
+              <div class="eyebrow-tag mb-1">STORED COMPLIANCE SCANS</div>
+              <h2 class="h5 fw-bold mb-3">Driving Licence &amp; Vehicle RC Vault</h2>
+              <div id="drv-docs-list" class="d-flex flex-column gap-2"></div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5">
+            <div class="as-panel p-4">
+              <div class="eyebrow-tag mb-1">DOCUMENT REPLACEMENT</div>
+              <h2 class="h5 fw-bold mb-3">Upload Updated Scan</h2>
+              <form id="doc-reupload-form" novalidate>
+                <div class="mb-3">
+                  <label for="re-doc-type" class="as-label">Document Type</label>
+                  <select id="re-doc-type" class="form-select">
+                    <option value="DRIVING_LICENCE">Driving Licence (DL)</option>
+                    <option value="VEHICLE_RC">Vehicle Registration (RC)</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="re-doc-file" class="as-label">JPEG / PNG / PDF (Max 5 MB)</label>
+                  <input id="re-doc-file" type="file" class="form-control"
+                         accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" required>
+                </div>
+                <button type="submit" id="btn-reupload" class="btn btn-as-primary w-100">
+                  Upload Compliance Document
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Authenticated Document Preview Modal -->
+  <div id="doc-preview-backdrop" class="position-fixed top-0 start-0 w-100 h-100 d-none p-3"
+       style="background: rgba(17,19,21,0.75); z-index: 1090; overflow-y: auto;">
+    <div class="as-panel w-100 overflow-hidden" style="margin: auto; max-width: 760px; max-height: calc(100dvh - 2rem); display: flex; flex-direction: column;">
+      <div class="waybill-header d-flex justify-content-between align-items-center flex-shrink-0">
+        <span id="doc-preview-title" class="font-mono small fw-bold">DOCUMENT PREVIEW</span>
+        <button type="button" id="btn-close-doc-preview" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+      </div>
+      <div id="doc-preview-body" class="p-3 text-center" style="min-height: 240px; overflow: auto; flex: 1 1 auto;"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/driver.js"></script>
+</body>
+</html>

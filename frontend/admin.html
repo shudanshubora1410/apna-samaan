@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations &amp; KYC Console — Apna Samaan</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Asphalt Sidebar Rail -->
+    <aside id="admin-rail" class="app-rail"></aside>
+
+    <main class="app-workspace">
+      <header class="app-topbar">
+        <h1 id="adm-view-title" class="h6 fw-bold mb-0">Driver Verification Queue</h1>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" id="btn-admin-refresh" class="btn btn-sm btn-as-ghost py-1 text-nowrap">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          </button>
+          <button type="button" id="btn-adm-mobile-logout" class="btn btn-sm btn-as-dark d-lg-none py-1">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: DRIVER KYC QUEUE + KPI STRIP -->
+      <section id="atab-kyc" class="ledger-scroll-pane">
+        <!-- Crisp Architectural KPI Ledger Strip -->
+        <div class="row g-0 as-panel overflow-hidden mb-4">
+          <div class="col-6 col-xl-3 p-3 border-end border-bottom border-xl-bottom-0" style="border-color: var(--as-line) !important;">
+            <div class="as-label">Registered Accounts</div>
+            <div id="kpi-users" class="display-font fw-bold fs-3">0</div>
+            <div id="kpi-users-sub" class="font-mono small text-secondary">—</div>
+          </div>
+          <div class="col-6 col-xl-3 p-3 border-end-xl border-bottom border-xl-bottom-0" style="border-color: var(--as-line) !important;">
+            <div class="as-label">Pending Driver KYC</div>
+            <div id="kpi-pending-kyc" class="display-font fw-bold fs-3" style="color: var(--as-vermilion);">0</div>
+            <div id="kpi-drivers-sub" class="font-mono small text-secondary">—</div>
+          </div>
+          <div class="col-6 col-xl-3 p-3 border-end" style="border-color: var(--as-line) !important;">
+            <div class="as-label">Active Waybills</div>
+            <div id="kpi-active-ship" class="display-font fw-bold fs-3">0</div>
+            <div id="kpi-ship-sub" class="font-mono small text-secondary">—</div>
+          </div>
+          <div class="col-6 col-xl-3 p-3">
+            <div class="as-label">Captured Revenue (INR)</div>
+            <div id="kpi-revenue" class="display-font fw-bold fs-3" style="color: var(--as-highway);">₹0.00</div>
+            <div id="kpi-refund-sub" class="font-mono small text-secondary">—</div>
+          </div>
+        </div>
+
+        <!-- KYC Table -->
+        <div class="as-panel p-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+              <div class="eyebrow-tag mb-1">COMPLIANCE SIGN-OFF</div>
+              <h2 class="h5 fw-bold mb-0">Fleet Partner Verification Queue</h2>
+            </div>
+            <select id="filter-kyc-status" class="form-select form-select-sm w-auto">
+              <option value="PENDING">Pending Verification</option>
+              <option value="APPROVED">Verified Drivers</option>
+              <option value="REJECTED">Action Needed</option>
+              <option value="DEACTIVATED">Suspended</option>
+              <option value="">All Drivers</option>
+            </select>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table as-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>Commercial Unit &amp; City</th>
+                  <th>Plate / Licence</th>
+                  <th>KYC Scans</th>
+                  <th>Status</th>
+                  <th class="text-end">Compliance Action</th>
+                </tr>
+              </thead>
+              <tbody id="kyc-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: WAYBILL LEDGER + FULL-BLEED LIVE MAP -->
+      <section id="atab-shipments" class="map-workbench d-none">
+        <div class="workbench-drawer">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <span class="small fw-semibold text-secondary">All Platform Shipments</span>
+            <select id="filter-ship-status" class="form-select form-select-sm w-auto">
+              <option value="">All Statuses</option>
+              <option value="PENDING_PAYMENT">Payment Pending</option>
+              <option value="SEARCHING_DRIVER">Finding Driver</option>
+              <option value="ASSIGNED">Driver Assigned</option>
+              <option value="PICKED_UP">Picked Up</option>
+              <option value="IN_TRANSIT">In Transit</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
+              <option value="FAILED">No Driver Found</option>
+            </select>
+          </div>
+
+          <div id="adm-shipments-list" class="d-flex flex-column gap-2"></div>
+        </div>
+
+        <div class="workbench-map-pane">
+          <div class="map-hud-pill">
+            <span class="corridor-dot"></span>
+            <span id="adm-map-title">Select any shipment to view route &amp; live GPS</span>
+          </div>
+          <div id="admin-map" class="workbench-map-canvas" aria-label="Admin live corridor map"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: FLEET TARIFF MATRIX -->
+      <section id="atab-vehicles" class="ledger-scroll-pane d-none">
+        <div class="mb-3">
+          <div class="eyebrow-tag mb-1">FLEET PRICING &amp; CAPACITIES</div>
+          <h2 class="h4 fw-bold mb-0">Commercial Fleet Capacities &amp; INR Tariff Matrix</h2>
+        </div>
+        <div id="admin-vehicles-grid" class="row g-3"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Admin Document Preview Modal -->
+  <div id="adm-doc-backdrop" class="position-fixed top-0 start-0 w-100 h-100 d-none p-3"
+       style="background: rgba(17,19,21,0.78); z-index: 1090; overflow-y: auto;">
+    <div class="as-panel w-100 overflow-hidden" style="margin: auto; max-width: 780px; max-height: calc(100dvh - 2rem); display: flex; flex-direction: column;">
+      <div class="waybill-header d-flex justify-content-between align-items-center flex-shrink-0">
+        <span id="adm-doc-title" class="font-mono small fw-bold">KYC DOCUMENT SCAN</span>
+        <button type="button" id="btn-close-adm-doc" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+      </div>
+      <div id="adm-doc-body" class="p-3 text-center" style="min-height: 240px; overflow: auto; flex: 1 1 auto;"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

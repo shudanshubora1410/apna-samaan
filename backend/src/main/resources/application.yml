@@ -1,0 +1,142 @@
+spring:
+  application:
+    name: apna-samaan-backend
+
+  # Automatically loads local `.env` when running locally; real OS env vars still take precedence
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/apna_samaan?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: ApnaSamaanHikariPool
+      maximum-pool-size: 10
+      connection-timeout: 10000
+
+  jpa:
+    # Flyway owns schema changes; Hibernate only validates that entities match tables
+    hibernate:
+      ddl-auto: validate
+    # Disabled so lazy JPA relationships cannot fire accidental SQL queries inside controllers
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  servlet:
+    multipart:
+      # Hard cap slightly above the 5 MB per-document business rule so oversized uploads get a clean 400/413 JSON error
+      max-file-size: 6MB
+      max-request-size: 14MB
+
+  web:
+    resources:
+      # Serves the modular `frontend/` directory directly on http://localhost:8080/ in dev and container builds
+      static-locations: file:../frontend/,file:./frontend/,classpath:/static/
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:teamapnasamaan@gmail.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: ${PORT:${SERVER_PORT:8080}}
+  forward-headers-strategy: native
+  # Prevents Spring Boot's default error page from leaking internal exception messages
+  error:
+    include-message: never
+    include-stacktrace: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+app:
+  version: 1.0.0
+  support-email: teamapnasamaan@gmail.com
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5500,http://127.0.0.1:5500,http://localhost:8080,http://127.0.0.1:8080}
+  storage:
+    driver-documents-dir: ${FILE_STORAGE_DIR:./uploads/driver-documents}
+  pricing:
+    gst-percent: ${PRICING_GST_PERCENT:18.00}
+  maps:
+    nominatim-base-url: ${NOMINATIM_BASE_URL:https://nominatim.openstreetmap.org}
+    osrm-base-url: ${OSRM_BASE_URL:https://router.project-osrm.org}
+    user-agent: "ApnaSamaan/1.0.0 (teamapnasamaan@gmail.com)"
+    timeout-millis: 3000
+    haversine-road-factor: 1.30
+    average-speed-kmh: 28.0
+  groq:
+    api-key: ${GROQ_API_KEY:}
+    base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
+    model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+    timeout-millis: 6000
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:}
+    key-secret: ${RAZORPAY_KEY_SECRET:}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    simulation-enabled: ${RAZORPAY_SIMULATION_ENABLED:false}
+  matching:
+    offer-timeout-seconds: ${MATCHING_OFFER_TIMEOUT_SECONDS:60}
+    search-timeout-seconds: ${MATCHING_SEARCH_TIMEOUT_SECONDS:180}
+    sweep-interval-millis: ${MATCHING_SWEEP_INTERVAL_MILLIS:5000}
+    scheduler-enabled: ${MATCHING_SCHEDULER_ENABLED:true}
+  google-oauth:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:${FRONTEND_BASE_URL:http://localhost:8080}/api/v1/auth/google/callback}
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080}
+    authorization-endpoint: https://accounts.google.com/o/oauth2/v2/auth
+    token-endpoint: https://oauth2.googleapis.com/token
+    userinfo-endpoint: https://openidconnect.googleapis.com/v1/userinfo
+    ticket-ttl-seconds: 60
+    timeout-millis: 5000
+  jwt:
+    # Required from env/.env; startup fails if missing or shorter than 32 characters
+    secret: ${JWT_SECRET}
+    access-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:15}
+    refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:7}
+  admin:
+    email: ${ADMIN_EMAIL:shudanshubora1410@gmail.com}
+    password: ${ADMIN_PASSWORD}
+  password-reset:
+    expiration-minutes: 15
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080}
+  mail:
+    async-enabled: ${MAIL_ASYNC_ENABLED:true}
+  rate-limit:
+    login-max-requests: 10
+    login-window-seconds: 60
+    forgot-password-max-requests: 5
+    forgot-password-window-seconds: 300
+
+logging:
+  level:
+    root: INFO
+    com.sam.apnasamaan: INFO
+    org.springframework.security: INFO

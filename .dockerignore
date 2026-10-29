@@ -1,0 +1,22 @@
+# Never copy local secrets, VCS metadata, or build/upload artifacts into Docker build context
+.git
+.github
+.env
+.env.*
+!.env.example
+
+backend/target
+target
+uploads
+backend/uploads
+logs
+backend/logs
+*.log
+
+.idea
+.vscode
+*.iml
+.DS_Store
+Thumbs.db
+docs
+README.md
