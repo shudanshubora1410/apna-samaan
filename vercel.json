@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://REPLACE_WITH_YOUR_RENDER_BACKEND.onrender.com/api/v1/:path*"
+      "destination": "https://apna-samaan-api.onrender.com/api/v1/:path*"
     }
   ]
 }
